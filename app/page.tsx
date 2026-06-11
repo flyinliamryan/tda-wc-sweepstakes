@@ -46,7 +46,7 @@ export default function Home() {
             <span>USA · Canada · Mexico · June–July 2026</span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight mb-4">
-            TDA{" "}
+            tda!{" "}
             <span
               className="bg-clip-text text-transparent"
               style={{ backgroundImage: "linear-gradient(to right, #f59e0b, #ef4444, #f59e0b)" }}
@@ -83,7 +83,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="border-t border-white/5 py-6 text-center text-xs text-slate-500">
           <p>
-            TDA World Cup 2026 Sweepstake · Data via{" "}
+            tda! World Cup 2026 Sweepstake · Data via{" "}
             <a
               href="https://www.football-data.org"
               className="text-slate-400 hover:text-white transition-colors underline underline-offset-2"

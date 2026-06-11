@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TDA World Cup 2026 Sweepstake",
+  title: "tda! World Cup 2026 Sweepstake",
   description: "The Digital Age World Cup 2026 Sweepstake — track your teams, prizes, and standings.",
 };
 
