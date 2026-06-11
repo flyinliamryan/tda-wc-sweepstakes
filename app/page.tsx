@@ -83,7 +83,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="border-t border-white/5 py-6 text-center text-xs text-slate-500">
           <p>
-            tda! World Cup 2026 Sweepstake · Data via{" "}
+            tda! World Cup 2026 Sweepstake &middot; Data via{" "}
             <a
               href="https://www.football-data.org"
               className="text-slate-400 hover:text-white transition-colors underline underline-offset-2"
