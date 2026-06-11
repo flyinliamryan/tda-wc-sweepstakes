@@ -1,28 +1,34 @@
 "use client";
 
-import { TEAM_FLAGS, getOwner, PARTICIPANTS } from "@/lib/sweepstakes-data";
+import { useEffect, useState } from "react";
+import { TEAM_FLAGS, getOwner } from "@/lib/sweepstakes-data";
 
-// Throw-in data is not available via football-data.org's free/standard tier.
-// This component shows a placeholder leaderboard that can be manually updated
-// via the THROW_IN_DATA object below, or wired to a stats API in future.
-
-export const THROW_IN_DATA: Record<string, number> = {
-  // Update these manually or via a future stats integration
-  // e.g. "Brazil": 45,
-};
+interface ThrowInEntry {
+  team: string;
+  throwIns: number;
+}
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 export default function ThrowInsLeaderboard() {
-  const allTeams = Object.values(PARTICIPANTS).flat();
+  const [data, setData] = useState<ThrowInEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const entries = allTeams
-    .map((team) => ({ team, count: THROW_IN_DATA[team] ?? 0 }))
-    .filter((e) => e.count > 0)
-    .sort((a, b) => b.count - a.count);
+  useEffect(() => {
+    fetch("/api/throwins")
+      .then((r) => r.json())
+      .then((d) => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Could not load throw-in data");
+        setLoading(false);
+      });
+  }, []);
 
-  const max = entries[0]?.count ?? 1;
-  const hasData = entries.length > 0;
+  const max = data[0]?.throwIns ?? 1;
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
@@ -36,22 +42,35 @@ export default function ThrowInsLeaderboard() {
         </div>
       </div>
 
-      {!hasData && (
-        <div className="text-center py-8 text-slate-400">
-          <p className="text-3xl mb-2">⏳</p>
-          <p className="text-sm">Throw-in data coming soon</p>
-          <p className="text-xs mt-1 text-slate-500 max-w-xs mx-auto">
-            Throw-in stats aren&apos;t available via the standard football API — we&apos;ll update
-            this manually during the group stage.
-          </p>
+      {loading && (
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-12 bg-white/5 rounded-xl animate-pulse" />
+          ))}
         </div>
       )}
 
-      {hasData && (
+      {error && (
+        <div className="text-center py-8 text-slate-400">
+          <p className="text-3xl mb-2">📡</p>
+          <p className="text-sm">{error}</p>
+          <p className="text-xs mt-1 text-slate-500">Live data will appear once matches are played</p>
+        </div>
+      )}
+
+      {!loading && !error && data.length === 0 && (
+        <div className="text-center py-8 text-slate-400">
+          <p className="text-3xl mb-2">⏳</p>
+          <p className="text-sm">No group stage matches played yet</p>
+          <p className="text-xs mt-1 text-slate-500">Check back once the tournament kicks off!</p>
+        </div>
+      )}
+
+      {!loading && !error && data.length > 0 && (
         <div className="space-y-2">
-          {entries.slice(0, 10).map((entry, i) => {
+          {data.slice(0, 10).map((entry, i) => {
             const owner = getOwner(entry.team);
-            const pct = (entry.count / max) * 100;
+            const pct = (entry.throwIns / max) * 100;
             return (
               <div key={entry.team} className="group">
                 <div className="flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/5 transition-colors">
@@ -62,7 +81,7 @@ export default function ThrowInsLeaderboard() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-medium text-white truncate">{entry.team}</span>
-                      <span className="text-sm font-bold text-white">{entry.count}</span>
+                      <span className="text-sm font-bold text-white tabular-nums">{entry.throwIns}</span>
                     </div>
                     {owner && (
                       <p className="text-xs text-slate-500 mt-0.5">Owned by {owner}</p>

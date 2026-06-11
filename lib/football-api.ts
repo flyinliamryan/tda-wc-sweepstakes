@@ -1,18 +1,53 @@
 const BASE_URL = "https://api.football-data.org/v4";
 const WC_CODE = "WC";
 
-async function fetchFD(path: string) {
+async function fetchFD(path: string, revalidate = 300) {
   const key = process.env.FOOTBALL_DATA_API_KEY;
   if (!key) throw new Error("FOOTBALL_DATA_API_KEY not set");
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { "X-Auth-Token": key },
-    next: { revalidate: 300 }, // cache 5 min
+    next: { revalidate },
   });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`football-data.org ${res.status}: ${text}`);
   }
   return res.json();
+}
+
+interface MatchTeamStats {
+  corner_kicks?: number;
+  free_kicks?: number;
+  goal_kicks?: number;
+  offsides?: number;
+  fouls?: number;
+  ball_possession?: number;
+  saves?: number;
+  throw_ins?: number;
+  shots?: number;
+  shots_on_goal?: number;
+  shots_off_goal?: number;
+  yellow_cards?: number;
+  yellow_red_cards?: number;
+  red_cards?: number;
+}
+
+interface DetailedMatch {
+  id: number;
+  stage: string;
+  status: string;
+  homeTeam: { id: number; name: string; statistics?: MatchTeamStats };
+  awayTeam: { id: number; name: string; statistics?: MatchTeamStats };
+  score: { fullTime: { home: number | null; away: number | null } };
+}
+
+export interface WCMatch {
+  id: number;
+  stage: string;
+  status: string;
+  homeTeam: { name: string };
+  awayTeam: { name: string };
+  score: { fullTime: { home: number | null; away: number | null } };
 }
 
 export interface TeamCardStats {
@@ -23,19 +58,39 @@ export interface TeamCardStats {
   total: number;
 }
 
-export interface WCMatch {
-  id: number;
-  stage: string;
-  status: string;
-  homeTeam: { name: string };
-  awayTeam: { name: string };
-  score: {
-    fullTime: { home: number | null; away: number | null };
-  };
-  bookings?: Array<{
-    teamId: number;
-    type: "YELLOW_CARD" | "RED_CARD" | "YELLOW_RED_CARD";
-  }>;
+export interface TeamThrowInStats {
+  team: string;
+  throwIns: number;
+}
+
+async function getGroupStageMatchIds(): Promise<number[]> {
+  const data = await fetchFD(`/competitions/${WC_CODE}/matches?stage=GROUP_STAGE`);
+  const matches: WCMatch[] = data.matches ?? [];
+  return matches
+    .filter((m) => m.status !== "TIMED" && m.status !== "SCHEDULED")
+    .map((m) => m.id);
+}
+
+async function fetchMatchDetail(id: number): Promise<DetailedMatch | null> {
+  try {
+    return await fetchFD(`/matches/${id}`);
+  } catch {
+    return null;
+  }
+}
+
+// Fetch all finished group stage matches with full statistics.
+// Results are cached for 5 minutes via Next.js fetch cache.
+async function getFinishedGroupStageDetails(): Promise<DetailedMatch[]> {
+  const ids = await getGroupStageMatchIds();
+  // Fetch in small batches to stay within rate limits during server-side rendering.
+  // In production this runs at most once per revalidation window (5 min).
+  const results: DetailedMatch[] = [];
+  for (const id of ids) {
+    const match = await fetchMatchDetail(id);
+    if (match) results.push(match);
+  }
+  return results;
 }
 
 export async function getGroupStageMatches(): Promise<WCMatch[]> {
@@ -57,54 +112,53 @@ export async function getAllMatches(): Promise<WCMatch[]> {
 }
 
 export async function getCardStats(): Promise<TeamCardStats[]> {
-  const matches = await getGroupStageMatches();
-  const stats: Record<string, TeamCardStats> = {};
+  try {
+    const matches = await getFinishedGroupStageDetails();
+    const map: Record<string, { yellow: number; red: number; yellowRed: number }> = {};
 
-  for (const match of matches) {
-    if (match.status === "TIMED" || match.status === "SCHEDULED") continue;
-    const bookings = match.bookings ?? [];
-    for (const booking of bookings) {
-      // bookings reference teamId; we need team names from match
-      // football-data returns bookings with team name in some endpoints
+    for (const m of matches) {
+      for (const side of [m.homeTeam, m.awayTeam]) {
+        const s = side.statistics;
+        if (!s) continue;
+        const name = side.name;
+        if (!map[name]) map[name] = { yellow: 0, red: 0, yellowRed: 0 };
+        map[name].yellow += s.yellow_cards ?? 0;
+        map[name].red += s.red_cards ?? 0;
+        map[name].yellowRed += s.yellow_red_cards ?? 0;
+      }
     }
-    // Aggregate by scanning match details — we need per-match bookings
-    // which requires fetching individual match or using /matches with full details
+
+    return Object.entries(map)
+      .map(([team, c]) => ({
+        team,
+        yellow: c.yellow,
+        red: c.red,
+        yellowRed: c.yellowRed,
+        total: c.yellow + c.red + c.yellowRed,
+      }))
+      .sort((a, b) => b.total - a.total);
+  } catch {
+    return [];
   }
-
-  // Use matches endpoint which includes bookings in full response
-  const detailedMatches = await getGroupStageMatchesWithBookings();
-  const cardMap: Record<string, { yellow: number; red: number; yellowRed: number }> = {};
-
-  for (const match of detailedMatches) {
-    if (match.status === "TIMED" || match.status === "SCHEDULED") continue;
-    const bookings = match.bookings ?? [];
-    for (const b of bookings) {
-      const teamName = (b as unknown as { team: { name: string }; type: string }).team?.name ?? "";
-      if (!teamName) continue;
-      if (!cardMap[teamName]) cardMap[teamName] = { yellow: 0, red: 0, yellowRed: 0 };
-      const type = (b as unknown as { type: string }).type;
-      if (type === "YELLOW_CARD") cardMap[teamName].yellow++;
-      else if (type === "RED_CARD") cardMap[teamName].red++;
-      else if (type === "YELLOW_RED_CARD") cardMap[teamName].yellowRed++;
-    }
-  }
-
-  return Object.entries(cardMap)
-    .map(([team, c]) => ({
-      team,
-      yellow: c.yellow,
-      red: c.red,
-      yellowRed: c.yellowRed,
-      total: c.yellow + c.red + c.yellowRed,
-    }))
-    .sort((a, b) => b.total - a.total);
 }
 
-async function getGroupStageMatchesWithBookings() {
+export async function getThrowInStats(): Promise<TeamThrowInStats[]> {
   try {
-    // football-data.org includes bookings in match detail response
-    const data = await fetchFD(`/competitions/${WC_CODE}/matches?stage=GROUP_STAGE`);
-    return data.matches ?? [];
+    const matches = await getFinishedGroupStageDetails();
+    const map: Record<string, number> = {};
+
+    for (const m of matches) {
+      for (const side of [m.homeTeam, m.awayTeam]) {
+        const s = side.statistics;
+        if (!s) continue;
+        const name = side.name;
+        map[name] = (map[name] ?? 0) + (s.throw_ins ?? 0);
+      }
+    }
+
+    return Object.entries(map)
+      .map(([team, throwIns]) => ({ team, throwIns }))
+      .sort((a, b) => b.throwIns - a.throwIns);
   } catch {
     return [];
   }
