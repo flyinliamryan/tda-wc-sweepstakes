@@ -63,7 +63,7 @@ export interface TeamThrowInStats {
   throwIns: number;
 }
 
-async function getGroupStageMatchIds(): Promise<number[]> {
+async function getFinishedGroupStageMatchIds(): Promise<number[]> {
   const data = await fetchFD(`/competitions/${WC_CODE}/matches?stage=GROUP_STAGE`);
   const matches: WCMatch[] = data.matches ?? [];
   return matches
@@ -79,12 +79,10 @@ async function fetchMatchDetail(id: number): Promise<DetailedMatch | null> {
   }
 }
 
-// Fetch all finished group stage matches with full statistics.
-// Results are cached for 5 minutes via Next.js fetch cache.
+// Fetch finished group stage matches individually to get bookings + statistics.
+// Cached for 5 min — runs once per revalidation window, not per user request.
 async function getFinishedGroupStageDetails(): Promise<DetailedMatch[]> {
-  const ids = await getGroupStageMatchIds();
-  // Fetch in small batches to stay within rate limits during server-side rendering.
-  // In production this runs at most once per revalidation window (5 min).
+  const ids = await getFinishedGroupStageMatchIds();
   const results: DetailedMatch[] = [];
   for (const id of ids) {
     const match = await fetchMatchDetail(id);
@@ -117,14 +115,18 @@ export async function getCardStats(): Promise<TeamCardStats[]> {
     const map: Record<string, { yellow: number; red: number; yellowRed: number }> = {};
 
     for (const m of matches) {
-      for (const side of [m.homeTeam, m.awayTeam]) {
-        const s = side.statistics;
-        if (!s) continue;
-        const name = side.name;
+      // Use bookings array (available on Deep Data plan)
+      const bookings: Array<{ team?: { name: string }; type: string }> =
+        (m as unknown as { bookings?: Array<{ team?: { name: string }; type: string }> })
+          .bookings ?? [];
+
+      for (const b of bookings) {
+        const name = b.team?.name;
+        if (!name) continue;
         if (!map[name]) map[name] = { yellow: 0, red: 0, yellowRed: 0 };
-        map[name].yellow += s.yellow_cards ?? 0;
-        map[name].red += s.red_cards ?? 0;
-        map[name].yellowRed += s.yellow_red_cards ?? 0;
+        if (b.type === "YELLOW_CARD") map[name].yellow++;
+        else if (b.type === "RED_CARD") map[name].red++;
+        else if (b.type === "YELLOW_RED_CARD") map[name].yellowRed++;
       }
     }
 
@@ -142,6 +144,9 @@ export async function getCardStats(): Promise<TeamCardStats[]> {
   }
 }
 
+// Throw-ins require the statistics add-on (pending activation).
+// Returns empty array until the add-on is active, at which point
+// the statistics block on each match detail will populate automatically.
 export async function getThrowInStats(): Promise<TeamThrowInStats[]> {
   try {
     const matches = await getFinishedGroupStageDetails();
