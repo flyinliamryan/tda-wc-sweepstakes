@@ -116,17 +116,17 @@ export async function getCardStats(): Promise<TeamCardStats[]> {
 
     for (const m of matches) {
       // Use bookings array (available on Deep Data plan)
-      const bookings: Array<{ team?: { name: string }; type: string }> =
-        (m as unknown as { bookings?: Array<{ team?: { name: string }; type: string }> })
+      const bookings: Array<{ team?: { name: string }; card: string }> =
+        (m as unknown as { bookings?: Array<{ team?: { name: string }; card: string }> })
           .bookings ?? [];
 
       for (const b of bookings) {
         const name = b.team?.name;
         if (!name) continue;
         if (!map[name]) map[name] = { yellow: 0, red: 0, yellowRed: 0 };
-        if (b.type === "YELLOW_CARD") map[name].yellow++;
-        else if (b.type === "RED_CARD") map[name].red++;
-        else if (b.type === "YELLOW_RED_CARD") map[name].yellowRed++;
+        if (b.card === "YELLOW") map[name].yellow++;
+        else if (b.card === "RED") map[name].red++;
+        else if (b.card === "YELLOW_RED") map[name].yellowRed++;
       }
     }
 
