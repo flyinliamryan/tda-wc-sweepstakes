@@ -1,7 +1,7 @@
 const BASE_URL = "https://api.football-data.org/v4";
 const WC_CODE = "WC";
 
-async function fetchFD(path: string, revalidate = 300) {
+async function fetchFD(path: string, revalidate = 120) {
   const key = process.env.FOOTBALL_DATA_API_KEY;
   if (!key) throw new Error("FOOTBALL_DATA_API_KEY not set");
   const res = await fetch(`${BASE_URL}${path}`, {

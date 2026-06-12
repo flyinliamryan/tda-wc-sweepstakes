@@ -4,7 +4,7 @@ import CardsLeaderboard from "@/components/CardsLeaderboard";
 import ThrowInsLeaderboard from "@/components/ThrowInsLeaderboard";
 import RecentMatches from "@/components/RecentMatches";
 
-export const revalidate = 300;
+export const revalidate = 120;
 
 export default function Home() {
   return (
