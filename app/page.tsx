@@ -21,9 +21,7 @@ export default function Home() {
         <header className="border-b border-white/5 backdrop-blur-sm sticky top-0 z-10 bg-black/20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                <span className="text-lg">⚽</span>
-              </div>
+              <img src="/logo/icon-192.png" alt="tda!" className="w-9 h-9 rounded-xl object-cover" />
               <div>
                 <p className="text-xs text-slate-400 leading-none">The Digital Age</p>
                 <p className="font-bold text-white leading-tight">World Cup 2026</p>
