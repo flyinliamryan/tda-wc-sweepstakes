@@ -40,10 +40,15 @@ export default function RecentMatches() {
   const [tab, setTab] = useState<"recent" | "upcoming">("recent");
 
   useEffect(() => {
-    fetch("/api/matches")
-      .then((r) => r.json())
-      .then(setData)
-      .catch(() => setData(null));
+    const load = () =>
+      fetch("/api/matches")
+        .then((r) => r.json())
+        .then(setData)
+        .catch(() => setData(null));
+
+    load();
+    const interval = setInterval(load, 120_000);
+    return () => clearInterval(interval);
   }, []);
 
   if (!data) {

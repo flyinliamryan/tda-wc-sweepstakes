@@ -13,16 +13,21 @@ export default function CardsLeaderboard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/cards")
-      .then((r) => r.json())
-      .then((d) => {
-        setData(d);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Could not load card data");
-        setLoading(false);
-      });
+    const load = () =>
+      fetch("/api/cards")
+        .then((r) => r.json())
+        .then((d) => {
+          setData(d);
+          setLoading(false);
+        })
+        .catch(() => {
+          setError("Could not load card data");
+          setLoading(false);
+        });
+
+    load();
+    const interval = setInterval(load, 120_000);
+    return () => clearInterval(interval);
   }, []);
 
   const max = data[0]?.total ?? 1;
