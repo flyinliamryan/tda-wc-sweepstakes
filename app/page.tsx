@@ -47,7 +47,7 @@ export default function Home() {
             tda!{" "}
             <span
               className="bg-clip-text text-transparent"
-              style={{ backgroundImage: "linear-gradient(to right, #f59e0b, #ef4444, #f59e0b)" }}
+              style={{ backgroundImage: "linear-gradient(90deg, #23d0d5 0%, #6939f0 52.08%, #f135b8 100%)" }}
             >
               Sweepstake
             </span>
