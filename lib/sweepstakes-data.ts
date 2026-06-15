@@ -78,7 +78,7 @@ export const TEAM_CRESTS: Record<string, string> = {
   Turkey: "https://crests.football-data.org/803.svg",
   "United States": "https://crests.football-data.org/usa.svg",
   Uruguay: "https://crests.football-data.org/758.svg",
-  Cameroon: "https://crests.football-data.org/CMR.png",
+  Cameroon: "https://crests.football-data.org/cameroon.svg",
 };
 
 export const AVATAR_COLORS = [
