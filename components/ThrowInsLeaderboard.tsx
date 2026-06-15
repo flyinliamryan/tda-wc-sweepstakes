@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TEAM_FLAGS, getOwner } from "@/lib/sweepstakes-data";
+import { getOwner } from "@/lib/sweepstakes-data";
+import TeamCrest from "./TeamCrest";
 
 interface ThrowInEntry {
   team: string;
@@ -61,8 +62,8 @@ export default function ThrowInsLeaderboard() {
       {!loading && !error && data.length === 0 && (
         <div className="text-center py-8 text-slate-400">
           <p className="text-3xl mb-2">⏳</p>
-          <p className="text-sm">No group stage matches played yet</p>
-          <p className="text-xs mt-1 text-slate-500">Check back once the tournament kicks off!</p>
+          <p className="text-sm">Stats add-on pending activation</p>
+          <p className="text-xs mt-1 text-slate-500">Throw-in data will populate automatically once enabled</p>
         </div>
       )}
 
@@ -77,7 +78,7 @@ export default function ThrowInsLeaderboard() {
                   <span className="w-6 text-center text-sm font-medium text-slate-400">
                     {MEDALS[i] ?? <span className="text-slate-500">{i + 1}</span>}
                   </span>
-                  <span className="text-lg">{TEAM_FLAGS[entry.team] ?? "🏳"}</span>
+                  <TeamCrest team={entry.team} size={24} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-medium text-white truncate">{entry.team}</span>

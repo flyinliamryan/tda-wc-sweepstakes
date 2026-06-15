@@ -1,6 +1,7 @@
 "use client";
 
-import { PARTICIPANTS, TEAM_FLAGS, AVATAR_COLORS } from "@/lib/sweepstakes-data";
+import { PARTICIPANTS, AVATAR_COLORS } from "@/lib/sweepstakes-data";
+import TeamCrest from "./TeamCrest";
 
 const names = Object.keys(PARTICIPANTS);
 
@@ -33,10 +34,10 @@ export default function ParticipantsGrid() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white truncate">{name}</p>
-                <div className="flex flex-col gap-0.5 mt-1">
+                <div className="flex flex-col gap-1 mt-1">
                   {teams.map((team) => (
-                    <span key={team} className="text-sm text-slate-300 flex items-center gap-1.5">
-                      <span>{TEAM_FLAGS[team] ?? "🏳"}</span>
+                    <span key={team} className="text-sm text-slate-300 flex items-center gap-2">
+                      <TeamCrest team={team} size={20} />
                       <span>{team}</span>
                     </span>
                   ))}

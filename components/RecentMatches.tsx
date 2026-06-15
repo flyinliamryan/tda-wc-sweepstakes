@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TEAM_FLAGS, getOwner } from "@/lib/sweepstakes-data";
+import { getOwner } from "@/lib/sweepstakes-data";
+import TeamCrest from "./TeamCrest";
 
 interface Match {
   id: number;
@@ -22,7 +23,7 @@ function TeamLine({ name, score, isWinner }: { name: string; score: number | nul
   const owner = getOwner(name);
   return (
     <div className={`flex items-center gap-2 py-0.5 ${isWinner ? "text-white font-semibold" : "text-slate-400"}`}>
-      <span className="text-base">{TEAM_FLAGS[name] ?? "🏳"}</span>
+      <TeamCrest team={name} size={20} />
       <span className="flex-1 text-sm truncate">{name}</span>
       {owner && <span className="text-xs text-amber-400 shrink-0">{owner}</span>}
       {score !== null && (
@@ -69,9 +70,10 @@ export default function RecentMatches() {
         <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-400/20 border border-amber-400/30 text-center">
           <p className="text-3xl mb-1">🏆</p>
           <p className="text-lg font-bold text-amber-300">World Cup Champions</p>
-          <p className="text-white font-bold text-2xl mt-1">
-            {TEAM_FLAGS[champion] ?? "🏳"} {champion}
-          </p>
+          <div className="flex items-center justify-center gap-2 mt-1">
+            <TeamCrest team={champion} size={28} />
+            <p className="text-white font-bold text-2xl">{champion}</p>
+          </div>
           {championOwner && (
             <p className="text-amber-400 text-sm mt-1">
               🎉 {championOwner} wins £100!

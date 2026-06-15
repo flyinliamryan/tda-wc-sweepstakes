@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TEAM_FLAGS, getOwner } from "@/lib/sweepstakes-data";
+import { getOwner } from "@/lib/sweepstakes-data";
+import TeamCrest from "./TeamCrest";
 import type { CardEntry } from "@/app/api/cards/route";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -73,7 +74,7 @@ export default function CardsLeaderboard() {
                   <span className="w-6 text-center text-sm font-medium text-slate-400">
                     {MEDALS[i] ?? <span className="text-slate-500">{i + 1}</span>}
                   </span>
-                  <span className="text-lg">{TEAM_FLAGS[entry.team] ?? "🏳"}</span>
+                  <TeamCrest team={entry.team} size={24} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-medium text-white truncate">{entry.team}</span>
