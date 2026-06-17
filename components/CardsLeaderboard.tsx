@@ -3,21 +3,21 @@
 import { useEffect, useState } from "react";
 import { getOwner } from "@/lib/sweepstakes-data";
 import TeamCrest from "./TeamCrest";
-import type { CardEntry } from "@/app/api/cards/route";
+import type { CardEntry } from "@/app/api/stats/route";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
-export default function CardsLeaderboard() {
-  const [data, setData] = useState<CardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function CardsLeaderboard({ data: initialData }: { data?: CardEntry[] }) {
+  const [data, setData] = useState<CardEntry[]>(initialData ?? []);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = () =>
-      fetch("/api/cards")
+      fetch("/api/stats")
         .then((r) => r.json())
         .then((d) => {
-          setData(d);
+          setData(d.cards ?? []);
           setLoading(false);
         })
         .catch(() => {
@@ -26,7 +26,7 @@ export default function CardsLeaderboard() {
         });
 
     load();
-    const interval = setInterval(load, 120_000);
+    const interval = setInterval(load, 300_000); // 5 min
     return () => clearInterval(interval);
   }, []);
 

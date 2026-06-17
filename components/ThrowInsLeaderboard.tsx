@@ -3,25 +3,21 @@
 import { useEffect, useState } from "react";
 import { getOwner } from "@/lib/sweepstakes-data";
 import TeamCrest from "./TeamCrest";
-
-interface ThrowInEntry {
-  team: string;
-  throwIns: number;
-}
+import type { ThrowInEntry } from "@/app/api/stats/route";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
-export default function ThrowInsLeaderboard() {
-  const [data, setData] = useState<ThrowInEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ThrowInsLeaderboard({ data: initialData }: { data?: ThrowInEntry[] }) {
+  const [data, setData] = useState<ThrowInEntry[]>(initialData ?? []);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const load = () =>
-      fetch("/api/throwins")
+      fetch("/api/stats")
         .then((r) => r.json())
         .then((d) => {
-          setData(d);
+          setData(d.throwIns ?? []);
           setLoading(false);
         })
         .catch(() => {
@@ -30,7 +26,7 @@ export default function ThrowInsLeaderboard() {
         });
 
     load();
-    const interval = setInterval(load, 120_000);
+    const interval = setInterval(load, 300_000); // 5 min
     return () => clearInterval(interval);
   }, []);
 
