@@ -1,5 +1,5 @@
 // Basic service worker — caches the shell for offline support
-const CACHE = "tda-wc-v1";
+const CACHE = "tda-wc-v2";
 const PRECACHE = ["/", "/manifest.json", "/logo/icon-192.png", "/logo/icon-512.png"];
 
 self.addEventListener("install", (e) => {
