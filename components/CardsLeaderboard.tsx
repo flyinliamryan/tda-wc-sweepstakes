@@ -26,8 +26,6 @@ export default function CardsLeaderboard({ data: initialData }: { data?: CardEnt
         });
 
     load();
-    const interval = setInterval(load, 300_000); // 5 min
-    return () => clearInterval(interval);
   }, []);
 
   const max = data[0]?.total ?? 1;

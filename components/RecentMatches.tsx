@@ -47,8 +47,6 @@ export default function RecentMatches() {
         .catch(() => setData(null));
 
     load();
-    const interval = setInterval(load, 300_000); // 5 min
-    return () => clearInterval(interval);
   }, []);
 
   if (!data) {

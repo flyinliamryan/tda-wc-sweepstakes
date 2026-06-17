@@ -26,8 +26,6 @@ export default function ThrowInsLeaderboard({ data: initialData }: { data?: Thro
         });
 
     load();
-    const interval = setInterval(load, 300_000); // 5 min
-    return () => clearInterval(interval);
   }, []);
 
   const max = data[0]?.throwIns ?? 1;
