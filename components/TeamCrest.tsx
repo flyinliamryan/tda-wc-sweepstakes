@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useTeamCrests } from "./TeamCrestsProvider";
+import { TEAM_CRESTS } from "@/lib/sweepstakes-data";
 
 interface Props {
   team: string;
@@ -8,9 +8,8 @@ interface Props {
 }
 
 export default function TeamCrest({ team, size = 24, className = "" }: Props) {
-  const crests = useTeamCrests();
-  const src = crests[team];
-  if (!src) return <span className="inline-block text-slate-500 text-xs" style={{ width: size, height: size }} />;
+  const src = TEAM_CRESTS[team];
+  if (!src) return <span className="inline-block" style={{ width: size, height: size }} />;
   return (
     <Image
       src={src}

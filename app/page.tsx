@@ -2,7 +2,6 @@ import ParticipantsGrid from "@/components/ParticipantsGrid";
 import PrizeSummary from "@/components/PrizeSummary";
 import CardsLeaderboard from "@/components/CardsLeaderboard";
 import ThrowInsLeaderboard from "@/components/ThrowInsLeaderboard";
-import RecentMatches from "@/components/RecentMatches";
 
 export const revalidate = 300;
 
@@ -62,15 +61,14 @@ export default function Home() {
           {/* Prizes */}
           <PrizeSummary />
 
-          {/* Live leagues + matches */}
+          {/* Live leagues */}
           <section>
             <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
               <span>📊</span> Live Leagues
             </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CardsLeaderboard />
               <ThrowInsLeaderboard />
-              <RecentMatches />
             </div>
           </section>
 

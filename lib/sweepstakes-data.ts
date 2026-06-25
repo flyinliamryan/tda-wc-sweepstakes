@@ -43,12 +43,14 @@ export function getOwner(teamName: string): string | null {
 }
 
 export const TEAM_CRESTS: Record<string, string> = {
-  Argentina: "https://crests.football-data.org/762.png",
+  // Sweepstake teams
   Algeria: "https://crests.football-data.org/algeria.svg",
+  Argentina: "https://crests.football-data.org/762.png",
   Australia: "https://crests.football-data.org/779.svg",
   Austria: "https://crests.football-data.org/816.svg",
   Belgium: "https://crests.football-data.org/805.svg",
   Brazil: "https://crests.football-data.org/764.svg",
+  Cameroon: "https://crests.football-data.org/cameroon.svg",
   Canada: "https://crests.football-data.org/canada.svg",
   Colombia: "https://crests.football-data.org/818.svg",
   Croatia: "https://crests.football-data.org/799.svg",
@@ -78,7 +80,20 @@ export const TEAM_CRESTS: Record<string, string> = {
   Turkey: "https://crests.football-data.org/803.svg",
   "United States": "https://crests.football-data.org/usa.svg",
   Uruguay: "https://crests.football-data.org/758.svg",
-  Cameroon: "https://crests.football-data.org/cameroon.svg",
+  // Other WC teams (appear in cards/throwins leaderboards)
+  "Bosnia-Herzegovina": "https://crests.football-data.org/bosnia.svg",
+  "Cape Verde Islands": "https://crests.football-data.org/cape_verde.svg",
+  "Congo DR": "https://crests.football-data.org/congo_dr.svg",
+  "Curaçao": "https://crests.football-data.org/curacao.svg",
+  Haiti: "https://crests.football-data.org/haiti.svg",
+  Iraq: "https://crests.football-data.org/iraq.svg",
+  Jordan: "https://crests.football-data.org/8049.png",
+  "New Zealand": "https://crests.football-data.org/783.svg",
+  Panama: "https://crests.football-data.org/panama.svg",
+  Qatar: "https://crests.football-data.org/8030.svg",
+  Senegal: "https://crests.football-data.org/senegal.svg",
+  "South Africa": "https://crests.football-data.org/9396.svg",
+  Uzbekistan: "https://crests.football-data.org/8070.png",
 };
 
 export const AVATAR_COLORS = [

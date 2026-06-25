@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { TeamCrestsProvider } from "@/components/TeamCrestsProvider";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
 const geistSans = Geist({
@@ -44,7 +43,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="min-h-full flex flex-col">
-        <TeamCrestsProvider>{children}</TeamCrestsProvider>
+        {children}
         <ServiceWorkerRegistrar />
       </body>
     </html>
