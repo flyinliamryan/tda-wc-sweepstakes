@@ -19,7 +19,7 @@ export interface StatsResponse {
 }
 
 async function fetchCSV(url: string): Promise<string[][]> {
-  const res = await fetch(url, { next: { revalidate: 300 } });
+  const res = await fetch(url, { redirect: "follow", next: { revalidate: 300 } });
   if (!res.ok) throw new Error(`CSV fetch failed: ${res.status}`);
   const text = await res.text();
   return text
