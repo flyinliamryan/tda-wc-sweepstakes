@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { normalizeTeamName } from "@/lib/sweepstakes-data";
 
 export interface CardEntry {
   team: string;
@@ -29,8 +30,8 @@ async function fetchCSV(url: string): Promise<string[][]> {
 }
 
 export async function GET() {
-  const cardsUrl = process.env.SHEETS_CARDS_URL;
-  const throwinsUrl = process.env.SHEETS_THROWINS_URL;
+  const cardsUrl = process.env.SHEETS_CARDS_URL?.trim();
+  const throwinsUrl = process.env.SHEETS_THROWINS_URL?.trim();
 
   if (!cardsUrl || !throwinsUrl) {
     return NextResponse.json({
@@ -52,14 +53,14 @@ export async function GET() {
         const yellow = parseInt(r[1]) || 0;
         const red = parseInt(r[2]) || 0;
         const yellowRed = parseInt(r[3]) || 0;
-        return { team: r[0], yellow, red, yellowRed, total: yellow + red + yellowRed };
+        return { team: normalizeTeamName(r[0]), yellow, red, yellowRed, total: yellow + red + yellowRed };
       })
       .sort((a, b) => b.total - a.total);
 
     const throwIns: ThrowInEntry[] = throwinsRows
       .slice(1)
       .filter((r) => r[0])
-      .map((r) => ({ team: r[0], throwIns: parseInt(r[1]) || 0 }))
+      .map((r) => ({ team: normalizeTeamName(r[0]), throwIns: parseInt(r[1]) || 0 }))
       .sort((a, b) => b.throwIns - a.throwIns);
 
     return NextResponse.json({ cards, throwIns });

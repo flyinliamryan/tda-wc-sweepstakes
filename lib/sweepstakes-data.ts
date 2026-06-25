@@ -28,6 +28,8 @@ export const TEAM_NAME_MAP: Record<string, string> = {
   "Czechia": "Czech Republic",
   "Czech Republic": "Czech Republic",
   "IR Iran": "Iran",
+  "Türkiye": "Turkey",
+  "Turkiye": "Turkey",
 };
 
 export function normalizeTeamName(name: string): string {
