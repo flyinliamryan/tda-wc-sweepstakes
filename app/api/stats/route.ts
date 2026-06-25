@@ -29,16 +29,22 @@ async function fetchCSV(url: string): Promise<string[][]> {
 }
 
 export async function GET() {
-  try {
-    const cardsUrl = process.env.SHEETS_CARDS_URL;
-    const throwinsUrl = process.env.SHEETS_THROWINS_URL;
+  const cardsUrl = process.env.SHEETS_CARDS_URL;
+  const throwinsUrl = process.env.SHEETS_THROWINS_URL;
 
+  if (!cardsUrl || !throwinsUrl) {
+    return NextResponse.json({
+      cards: [], throwIns: [],
+      error: `Missing env vars: ${!cardsUrl ? "SHEETS_CARDS_URL " : ""}${!throwinsUrl ? "SHEETS_THROWINS_URL" : ""}`.trim(),
+    });
+  }
+
+  try {
     const [cardsRows, throwinsRows] = await Promise.all([
-      cardsUrl ? fetchCSV(cardsUrl) : Promise.resolve([]),
-      throwinsUrl ? fetchCSV(throwinsUrl) : Promise.resolve([]),
+      fetchCSV(cardsUrl),
+      fetchCSV(throwinsUrl),
     ]);
 
-    // Skip header row, parse cards
     const cards: CardEntry[] = cardsRows
       .slice(1)
       .filter((r) => r[0])
@@ -50,7 +56,6 @@ export async function GET() {
       })
       .sort((a, b) => b.total - a.total);
 
-    // Skip header row, parse throw-ins
     const throwIns: ThrowInEntry[] = throwinsRows
       .slice(1)
       .filter((r) => r[0])
@@ -59,7 +64,8 @@ export async function GET() {
 
     return NextResponse.json({ cards, throwIns });
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ cards: [], throwIns: [] });
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("Stats fetch error:", msg);
+    return NextResponse.json({ cards: [], throwIns: [], error: msg });
   }
 }

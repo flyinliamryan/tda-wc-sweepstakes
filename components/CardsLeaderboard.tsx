@@ -17,11 +17,12 @@ export default function CardsLeaderboard({ data: initialData }: { data?: CardEnt
       fetch("/api/stats")
         .then((r) => r.json())
         .then((d) => {
+          if (d.error) setError(d.error);
           setData(d.cards ?? []);
           setLoading(false);
         })
-        .catch(() => {
-          setError("Could not load card data");
+        .catch((e) => {
+          setError(e.message ?? "Could not load card data");
           setLoading(false);
         });
 

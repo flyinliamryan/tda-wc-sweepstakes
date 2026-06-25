@@ -1,5 +1,6 @@
-// Basic service worker — caches the shell for offline support
-const CACHE = "tda-wc-v3";
+// Cache name includes build ID injected at registration time via ?v=
+const params = new URL(self.location).searchParams;
+const CACHE = "tda-wc-" + (params.get("v") ?? "dev");
 const PRECACHE = ["/", "/manifest.json", "/logo/icon-192.png", "/logo/icon-512.png"];
 
 self.addEventListener("install", (e) => {
@@ -17,14 +18,12 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  // Network-first for API routes so data is always fresh
   if (e.request.url.includes("/api/")) {
     e.respondWith(
       fetch(e.request).catch(() => caches.match(e.request))
     );
     return;
   }
-  // Cache-first for everything else
   e.respondWith(
     caches.match(e.request).then((cached) => cached ?? fetch(e.request))
   );
